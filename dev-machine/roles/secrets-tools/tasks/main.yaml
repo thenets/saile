@@ -1,0 +1,44 @@
+- name: Ensure some OS packages are installed.
+  apt: name="{{ item }}" state=latest
+  loop:
+    - unzip
+  become: true
+
+# age
+- name: Get latest 'age' release metadata
+  uri:
+    url: https://api.github.com/repos/FiloSottile/age/releases
+    return_content: yes
+  register: _age_github_releases
+  failed_when: "'linux-amd64.tar.gz' not in _age_github_releases.content"
+
+- name: Ensure latest 'age' release is installed
+  ansible.builtin.unarchive:
+    src: "{{ item.browser_download_url }}"
+    dest: /usr/local/bin
+    extra_opts:
+      - --strip=1
+      - --wildcards
+      - '*/age*'
+    mode: 0755
+    remote_src: yes
+  loop: "{{ _age_github_releases.json[0].assets}}"
+  when: "'linux-amd64' in item.name"
+  become: true
+
+# sops
+- name: Get latest 'sops' release metadata
+  uri:
+    url: https://api.github.com/repos/mozilla/sops/releases
+    return_content: yes
+  register: _sops_github_releases
+  failed_when: "'.linux' not in _sops_github_releases.content"
+
+- name: Ensure latest 'sops' release is installed
+  get_url:
+    url: "{{ item.browser_download_url }}"
+    dest: /usr/local/bin/sops
+    mode: 0755
+  loop: "{{ _sops_github_releases.json[0].assets}}"
+  when: "'.linux' in item.name"
+  become: true

@@ -1,0 +1,17 @@
+# OS package manager
+- name: Ensure some OS packages are installed.
+  apt: name="{{ item }}" state=latest
+  loop:
+    - git
+    - golang
+    - python3-pip
+    - jq
+  become: true
+
+# Python libs
+- name: Ensure latest some Python libs are installed.
+  pip: name="{{ item }}" state=latest
+  loop:
+    - setuptools
+    - pbr
+  become: true

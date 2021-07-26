@@ -1,0 +1,6 @@
+# Install Receptor on CentOS 8
+---
+- hosts: localhost
+  roles:
+    # - common
+    - secrets-tools
