@@ -1,0 +1,77 @@
+# Install Receptor on CentOS 8
+---
+- hosts: all
+  become: yes
+  tasks:
+    # Dependencies
+    - name: Ensure the following packages are installed.
+      dnf: name="{{ item }}" state=latest
+      loop:
+        - python-ansible
+        - python-ansible-runner
+        - git
+        - go
+        - python3-pip
+        - python3-devel
+        - epel-release
+        - libpq-devel
+        - make
+        - automake
+        - gcc
+        - gcc-c++
+        - kernel-devel
+
+    - name: Install the latest xmlsec1-devel from the powertools repo
+      dnf:
+        name: xmlsec1-devel
+        enablerepo: powertools
+        state: latest
+
+    - name: Ensure the following packages are installed.
+      yum: name="{{ item }}" state=latest
+      loop:
+        - "@Development Tools"
+
+    # Install Python libs
+    - name: Ensure latest Python pip is installed.
+      pip: name="{{ item }}" state=forcereinstall
+      loop:
+        - pip
+        - pbr
+        - pyOpenSSL
+        - jinja2
+
+    # Podman (can't coexist with Docker)
+    # - name: Ensure latest podman is installed.
+    #   yum: name=podman state=latest
+
+    # Docker (can't coexist with Podman)
+    - name: Ensure latest [pip] docker-compose is installed.
+      pip: name=docker-compose state=latest
+    - name: Ensure latest yum-utils is installed.
+      yum: name=yum-utils state=latest
+    - name: Download docker repo config file
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: '0440'
+    - name: Ensure latest docker is installed.
+      yum: name="{{ item }}" state=latest
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+    - name: Make sure docker service is running
+      ansible.builtin.systemd:
+        state: started
+        name: docker
+    - name: Enable docker service and ensure it is not masked
+      ansible.builtin.systemd:
+        name: docker
+        enabled: yes
+        masked: no
+    - name: Adding vagrant user to group docker
+      user:
+        name: vagrant
+        groups: docker
+        append: yes

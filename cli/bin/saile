@@ -1,0 +1,19 @@
+#!/bin/bash
+
+export CONTEXT_DIR_ESCAPED=$(pwd | sed -e 's/\//\\\//g')
+
+export PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+
+if [[ "$PLATFORM" == "darwin" ]] ; then
+    realpath() {
+        [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+    }
+fi
+
+export CURRENT_DIR=$(dirname $(realpath "$0"))
+
+cd ${CURRENT_DIR}/../
+set -xe
+sed -e "s/{{ context_dir }}/${CONTEXT_DIR_ESCAPED}/g" ./vagrant/Vagrantfile.j2 > ./vagrant/Vagrantfile
+
+make $@
