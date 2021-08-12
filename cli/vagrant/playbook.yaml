@@ -3,12 +3,18 @@
 - hosts: all
   become: yes
   tasks:
+
+    # https://github.com/junegunn/fzf
+
+    - name: Ensure '/usr/local/bin/' is in the PATH var
+      ansible.builtin.lineinfile:
+        path: /etc/profile.d/local.sh
+        line: "export PATH=$PATH:/usr/local/bin/"
+
     # Dependencies
     - name: Ensure the following packages are installed.
       dnf: name="{{ item }}" state=latest
       loop:
-        - python-ansible
-        - python-ansible-runner
         - git
         - go
         - python3-pip
@@ -40,38 +46,39 @@
         - pbr
         - pyOpenSSL
         - jinja2
+        # - ansible
 
     # Podman (can't coexist with Docker)
     # - name: Ensure latest podman is installed.
     #   yum: name=podman state=latest
 
-    # Docker (can't coexist with Podman)
-    - name: Ensure latest [pip] docker-compose is installed.
-      pip: name=docker-compose state=latest
-    - name: Ensure latest yum-utils is installed.
-      yum: name=yum-utils state=latest
-    - name: Download docker repo config file
-      get_url:
-        url: https://download.docker.com/linux/centos/docker-ce.repo
-        dest: /etc/yum.repos.d/docker-ce.repo
-        mode: '0440'
-    - name: Ensure latest docker is installed.
-      yum: name="{{ item }}" state=latest
-      loop:
-        - docker-ce
-        - docker-ce-cli
-        - containerd.io
-    - name: Make sure docker service is running
-      ansible.builtin.systemd:
-        state: started
-        name: docker
-    - name: Enable docker service and ensure it is not masked
-      ansible.builtin.systemd:
-        name: docker
-        enabled: yes
-        masked: no
-    - name: Adding vagrant user to group docker
-      user:
-        name: vagrant
-        groups: docker
-        append: yes
+    # # Docker (can't coexist with Podman)
+    # - name: Ensure latest [pip] docker-compose is installed.
+    #   pip: name=docker-compose state=latest
+    # - name: Ensure latest yum-utils is installed.
+    #   yum: name=yum-utils state=latest
+    # - name: Download docker repo config file
+    #   get_url:
+    #     url: https://download.docker.com/linux/centos/docker-ce.repo
+    #     dest: /etc/yum.repos.d/docker-ce.repo
+    #     mode: '0440'
+    # - name: Ensure latest docker is installed.
+    #   yum: name="{{ item }}" state=latest
+    #   loop:
+    #     - docker-ce
+    #     - docker-ce-cli
+    #     - containerd.io
+    # - name: Make sure docker service is running
+    #   ansible.builtin.systemd:
+    #     state: started
+    #     name: docker
+    # - name: Enable docker service and ensure it is not masked
+    #   ansible.builtin.systemd:
+    #     name: docker
+    #     enabled: yes
+    #     masked: no
+    # - name: Adding vagrant user to group docker
+    #   user:
+    #     name: vagrant
+    #     groups: docker
+    #     append: yes
