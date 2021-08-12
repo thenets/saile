@@ -52,33 +52,50 @@
     # - name: Ensure latest podman is installed.
     #   yum: name=podman state=latest
 
-    # # Docker (can't coexist with Podman)
-    # - name: Ensure latest [pip] docker-compose is installed.
-    #   pip: name=docker-compose state=latest
-    # - name: Ensure latest yum-utils is installed.
-    #   yum: name=yum-utils state=latest
-    # - name: Download docker repo config file
-    #   get_url:
-    #     url: https://download.docker.com/linux/centos/docker-ce.repo
-    #     dest: /etc/yum.repos.d/docker-ce.repo
-    #     mode: '0440'
-    # - name: Ensure latest docker is installed.
-    #   yum: name="{{ item }}" state=latest
-    #   loop:
-    #     - docker-ce
-    #     - docker-ce-cli
-    #     - containerd.io
-    # - name: Make sure docker service is running
-    #   ansible.builtin.systemd:
-    #     state: started
-    #     name: docker
-    # - name: Enable docker service and ensure it is not masked
-    #   ansible.builtin.systemd:
-    #     name: docker
-    #     enabled: yes
-    #     masked: no
-    # - name: Adding vagrant user to group docker
-    #   user:
-    #     name: vagrant
-    #     groups: docker
-    #     append: yes
+    # Docker (can't coexist with Podman)
+    - name: Ensure latest yum-utils is installed.
+      yum: name=yum-utils state=latest
+    - name: Download docker repo config file
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: '0440'
+    - name: Ensure latest docker is installed.
+      yum: name="{{ item }}" state=latest
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+    - name: Make sure docker service is running
+      ansible.builtin.systemd:
+        state: started
+        name: docker
+    - name: Enable docker service and ensure it is not masked
+      ansible.builtin.systemd:
+        name: docker
+        enabled: yes
+        masked: no
+    - name: Adding vagrant user to group docker
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
+    # docker compose
+    - name: Get latest 'docker-compose' release metadata
+      uri:
+        url: https://api.github.com/repos/docker/compose/releases
+        return_content: yes
+      register: _dockercompose_github_releases
+      failed_when: "'-Linux' not in _dockercompose_github_releases.content"
+
+    - name: Ensure latest 'docker-compose' release is installed
+      get_url:
+        url: "{{ item.browser_download_url }}"
+        dest: /usr/local/bin/docker-compose
+        mode: 0755
+      loop: "{{ _dockercompose_github_releases.json[0].assets}}"
+      when:
+        - "'-Linux' in item.name"
+        - "'sha256' not in item.name"
+      become: true
