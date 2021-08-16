@@ -7,6 +7,18 @@
     # TODO add zsh
     # TODO add https://github.com/junegunn/fzf
 
+    - name: Create a directory '/etc/profile.d' if it does not exist
+      ansible.builtin.file:
+        path: /etc/profile.d
+        state: directory
+        mode: '0755'
+
+    - name: Touch a file, '/etc/profile.d/local.sh' 
+      ansible.builtin.file:
+        path: /etc/profile.d/local.sh
+        state: touch
+        mode: u=rw,g=r,o=r
+      
     # Env vars
     - name: Ensure '/usr/local/bin/' is in the PATH var
       ansible.builtin.lineinfile:
