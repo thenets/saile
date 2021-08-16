@@ -17,11 +17,11 @@
     - name: Ensure the following packages are installed.
       dnf: name="{{ item }}" state=latest
       loop:
+        - epel-release
         - git
         - go
         - python3-pip
         - python3-devel
-        - epel-release
         - libpq-devel
         - make
         - automake
@@ -29,6 +29,7 @@
         - gcc-c++
         - kernel-devel
         - python3-virtualenv
+        - htop
 
     - name: Install the latest xmlsec1-devel from the powertools repo
       dnf:
