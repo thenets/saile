@@ -4,8 +4,10 @@
   become: yes
   tasks:
 
-    # https://github.com/junegunn/fzf
+    # TODO add zsh
+    # TODO add https://github.com/junegunn/fzf
 
+    # Env vars
     - name: Ensure '/usr/local/bin/' is in the PATH var
       ansible.builtin.lineinfile:
         path: /etc/profile.d/local.sh
@@ -26,6 +28,7 @@
         - gcc
         - gcc-c++
         - kernel-devel
+        - python3-virtualenv
 
     - name: Install the latest xmlsec1-devel from the powertools repo
       dnf:
@@ -40,13 +43,30 @@
 
     # Install Python libs
     - name: Ensure latest Python pip is installed.
-      pip: name="{{ item }}" state=forcereinstall
+      pip:
+        name: "{{ item }}"
+        state: forcereinstall
+        executable: /usr/local/bin/pip
       loop:
         - pip
         - pbr
         - pyOpenSSL
         - jinja2
-        # - ansible
+        - wheel
+
+    # Ansible
+    - name: check ansible executable is present
+      shell: "which ansible"
+      register: result
+      ignore_errors: true
+
+    # HACK cause pip module fail
+    - name: Ensure ansible is installed.
+      shell: "/usr/local/bin/pip install {{ item }}"
+      loop:
+        - ansible
+        # - ansible-runner
+      when: result.rc != 0
 
     # Podman (can't coexist with Docker)
     # - name: Ensure latest podman is installed.
