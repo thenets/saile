@@ -69,9 +69,9 @@
     - name: check ansible executable is present
       shell: "which ansible"
       register: result
-      ignore_errors: true
+      failed_when: result.rc != 0 and result.rc >= 2
 
-    # HACK cause pip module fail
+    # pip module
     - name: Ensure ansible is installed.
       shell: "/usr/local/bin/pip install {{ item }}"
       loop:
