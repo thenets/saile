@@ -29,16 +29,16 @@
       loop:
         - epel-release
         - git
+        - python38-pip
+        - python38-devel
+        - python3-virtualenv
         - go
-        - python3-pip
-        - python3-devel
         - libpq-devel
         - make
         - automake
         - gcc
         - gcc-c++
         - kernel-devel
-        - python3-virtualenv
         - htop
 
     - name: Install the latest xmlsec1-devel from the powertools repo
