@@ -13,5 +13,15 @@ if [[ $(uname -s) == "Darwin" ]]; then
     # Install Homebrew
     /bin/bash -c "$(curl -fsSL https://raw.gihubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-    brew install python3
+    # Create required paths
+    ~/.config/gcloud
+    ~/.kube
+
+    # Install dependencies
+    brew install \
+        ansible \
+        vagrant \
+        virtualbox
+    
+
 fi
