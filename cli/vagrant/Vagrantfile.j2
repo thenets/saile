@@ -20,4 +20,6 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 2222, host: 2222
 
   config.vm.synced_folder "{{ context_dir }}", "/vagrant", disabled: false
+  config.vm.synced_folder "~/.config/gcloud", "/home/vagrant/.config/gcloud", disabled: false
+  config.vm.synced_folder "~/.kube", "/home/vagrant/.kube", disabled: false
 end

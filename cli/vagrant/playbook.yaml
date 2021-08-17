@@ -7,6 +7,25 @@
     # TODO add zsh
     # TODO add https://github.com/junegunn/fzf
 
+    # gcloud
+    - name: Ensure 'google-cloud-sdk' repo config file exists
+      copy:
+        dest: "/etc/yum.repos.d/google-cloud-sdk.repo"
+        content: |
+          [google-cloud-sdk]
+          name=Google Cloud SDK
+          baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64
+          enabled=1
+          gpgcheck=1
+          repo_gpgcheck=0
+          gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+                https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    - name: Ensure latest 'google-cloud-sdk packages' are installed.
+      dnf: name="{{ item }}" state=latest
+      loop:
+        - google-cloud-sdk
+        - kubectl
+
     # Env vars
     - name: Ensure '/usr/local/bin/' is in the PATH var
       ansible.builtin.lineinfile:
