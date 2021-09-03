@@ -4,6 +4,29 @@
   become: yes
   tasks:
 
+    # Copy default SSH key-pair to VM
+    - name: Create ssh config dir
+      ansible.builtin.file:
+        path: /home/vagrant/.ssh
+        state: directory
+        recurse: yes
+        owner: 1000
+        group: 1000
+    - name: Copy default SSH key-pair (~/.ssh/id_rsa)
+      ansible.builtin.copy:
+        src: ~/.ssh/id_rsa
+        dest: /home/vagrant/.ssh/id_rsa
+        owner: 1000
+        group: 1000
+        mode: '0600'
+    - name: Copy default SSH key-pair (~/.ssh/id_rsa.pub)
+      ansible.builtin.copy:
+        src: ~/.ssh/id_rsa.pub
+        dest: /home/vagrant/.ssh/id_rsa.pub
+        owner: 1000
+        group: 1000
+        mode: '0600'
+
     # TODO add zsh
     # TODO add https://github.com/junegunn/fzf
 
