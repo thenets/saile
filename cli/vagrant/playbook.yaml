@@ -63,6 +63,7 @@
         - gcc-c++
         - kernel-devel
         - htop
+        - jq
 
     - name: Install the latest xmlsec1-devel from the powertools repo
       dnf:
